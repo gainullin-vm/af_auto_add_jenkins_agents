@@ -1,0 +1,6 @@
+---
+ansible_user                 : vitaly
+ansible_ssh_private_key_file : /home/ubuntu/.ssh/dev02_access
+ansible_ssh_port             : 
+environment                  : dev02
+owner                        : vitaly

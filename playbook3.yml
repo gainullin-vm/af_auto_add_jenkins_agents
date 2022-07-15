@@ -1,0 +1,24 @@
+---
+- name: Install nginx and push my web site
+  hosts: all 
+  become: yes 
+
+
+  vars:
+   src_file: /home/ubuntu/site/index.html
+   dest_file: /var/www/html
+
+  tasks:
+  - name: Install nginx
+    apt: name=nginx state=latest
+
+  - name: Copy site to servers
+    copy: src={{ src_file }} dest={{ dest_file }} mode=0555
+    notify: restart nginx 
+
+  - name: Start nginx and make it enavled on boot
+    service: name=nginx state=started enabled=yes
+
+  handlers:
+  - name: restart nginx
+    service: name=nginx state=restarted 

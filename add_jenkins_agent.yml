@@ -1,0 +1,100 @@
+---
+- name: Configure Jenkins agent
+  hosts: heavy
+  become: yes
+
+  tasks:
+
+  - name: Create /root/git directory if it does not exist
+    file:
+     path: /root/git
+     state: directory
+     mode: '0777'
+
+  - name: Create /root/jenkins directory if it does not exist
+    file:
+     path: /root/jenkins
+     state: directory
+     mode: '0777'
+     
+  - name: ADD_REGULAR_KEY
+    authorized_key:
+     user : root
+     state: present
+     key  :  "{{ lookup('file', '/home/ubuntu/ansible/custom/lanikanani_rsa.pub') }}"
+     path : /root/.ssh/authorized_keys
+
+  - name: ADD_JENKINS_KEY
+    authorized_key:
+     user : root
+     state: present
+     key  :  "{{ lookup('file', '/home/ubuntu/ansible/custom/jenkins_slave.pub') }}"
+     path : /root/.ssh/authorized_keys
+  
+  - name: COPY jenkins_slave key
+    copy:
+     src: /home/ubuntu/ansible/custom/jenkins_slave
+     dest: /root/.ssh/jenkins_slave
+     mode: '0600'
+
+  - name : apt update
+    apt:
+     update_cache: true
+     force_apt_get: true
+
+  - name : Install Java
+    apt:
+     name: default-jre
+     state: latest
+
+  - name : Install Docker
+    apt:
+     name: docker.io
+     state: latest
+   
+  - name : Install git
+    apt:
+     name: git
+     state: latest
+
+  - name : install curl
+    shell:
+     cmd : apt install curl -y
+
+  - name : git init
+    shell:
+     cmd : git init
+     chdir: /root/git
+
+  - name : git add
+    shell:
+     cmd : git add .
+     chdir: /root/git
+
+  - name : git remote add origin
+    shell:
+     cmd : git remote add origin git@github.com:avalancheforecast/backend.git
+     chdir: /root/git
+
+  - name : Copying python script add_agent
+    copy :
+     src : /home/ubuntu/ansible/python_scripts/add_agent.py
+     dest: /root/add_agent.py
+     mode: '0600'
+
+  - name : Install pip
+    apt:
+     name: pip
+     state: latest  
+
+  - name: Install python-jenkins package
+    pip:
+     name: python-jenkins
+     
+  - name: Install requests package
+    pip:
+     name: requests
+
+  - name : Add agent to Jenkins
+    shell: 
+     cmd : python3 /root/add_agent.py  

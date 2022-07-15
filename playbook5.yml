@@ -1,0 +1,36 @@
+---
+- name: Variables
+  hosts: all
+  become: yes
+
+  vars:
+   lola: lola2413
+   pupa: pupa4r321
+   lupa: lupa33423
+   privet: Privet
+
+  tasks:
+
+  - name: print lola var
+    debug:
+      var: lola
+
+  - debug:
+      msg: "Pokaji lolu: {{ lola }}"
+
+  - debug:
+      msg: "Owner of current node -->{{ owner }}<--"
+
+  - set_fact: full_message="{{ lola }} {{ pupa }} {{ lupa }} {{ privet }}"
+
+  - debug:
+      var: full_message
+
+  - debug:
+      var: ansible_facts.ens3.ipv4
+
+  - shell: uptime
+    register: results
+
+  - debug:
+      var: results

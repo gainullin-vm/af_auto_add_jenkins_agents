@@ -1,0 +1,20 @@
+---
+- name: Uninstall nginx
+  hosts: all
+  become: yes
+
+  tasks:
+  - name: curl web
+    uri: url=http://localhost:80
+
+  - name: Stop nginx
+    service: name=nginx state=stopped enabled=no
+
+  - name: absent nginx
+    apt: name=nginx state=absent
+
+  - name: autoremove nginx
+    apt: autoremove=yes
+
+  - name: curl web 2
+    uri: url=http://localhost:80
